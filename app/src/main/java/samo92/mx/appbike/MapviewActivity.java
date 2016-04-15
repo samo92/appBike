@@ -1,8 +1,12 @@
 package samo92.mx.appbike;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -19,7 +23,6 @@ public class MapviewActivity extends AppCompatActivity {
 
     // Create a mapView
     private MapView mapView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,56 +57,63 @@ public class MapviewActivity extends AppCompatActivity {
                 // Move the camera to that position
                 mapboxMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-            //Creating Markers
+                //Creating Markers
 
+                /** Use IconFactory, Drawable, and Icon to load our marker icon
+                 * and assign it to a marker */
+                IconFactory iconFactory = IconFactory.getInstance(MapviewActivity.this);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapviewActivity.this, R.mipmap.ic_ev_station_black_24dp);
+                Icon icon = iconFactory.fromDrawable(iconDrawable);
 
-            //The Office
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.326350, -99.181819))    //Office
-                    .title("Here I am")
-                    .snippet("Welcome to my office."));
+                //The Office
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.326350, -99.181819))    //Office
+                        .title("Here I am")
+                        .snippet("Welcome to my office.")
+                        .icon(icon));
+                //.setIcon(new Icon(this, Icon.Size.Large, "danger", "3887be"));
 
-            //Parking
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.332345, -99.184451))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                //Parking
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.332345, -99.184451))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.332022, -99.190577))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.332022, -99.190577))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.332790, -99.181875))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.332790, -99.181875))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.326341, -99.182306))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.326341, -99.182306))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            //Bike
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.333506, -99.179225))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                //Bike
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.333506, -99.179225))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.333157, -99.182261))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.333157, -99.182261))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.331907, -99.187693))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.331907, -99.187693))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
-            mapboxMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(19.333448, -99.191377))
-                    .title("Hello World!")
-                    .snippet("Welcome to my marker."));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(19.333448, -99.191377))
+                        .title("Hello World!")
+                        .snippet("Welcome to my marker."));
 
             }
 
