@@ -45,9 +45,9 @@ public class MapviewActivity extends AppCompatActivity {
                 mapboxMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
 
-            );
-
-        }
+        });
 
 
     }
+}
+
