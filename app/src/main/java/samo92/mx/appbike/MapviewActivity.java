@@ -12,6 +12,7 @@ import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.layers.CustomLayer;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -66,8 +67,9 @@ public class MapviewActivity extends AppCompatActivity {
                 Icon icon = iconFactory.fromDrawable(iconDrawable);
 
                 //The Office
+
                 mapboxMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(19.326350, -99.181819))    //Office
+                        .position(new LatLng(19.326350, -99.181819, 1054.452))    //Office
                         .title("Here I am")
                         .snippet("Welcome to my office.")
                         .icon(icon));
