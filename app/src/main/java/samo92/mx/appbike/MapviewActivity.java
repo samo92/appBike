@@ -24,10 +24,10 @@ import com.mapbox.services.Constants;
 import com.mapbox.services.commons.ServicesException;
 import com.mapbox.services.commons.geojson.LineString;
 import com.mapbox.services.commons.models.Position;
-import com.mapbox.services.directions.v5.DirectionsCriteria;
-import com.mapbox.services.directions.v5.MapboxDirections;
-import com.mapbox.services.directions.v5.models.DirectionsResponse;
-import com.mapbox.services.directions.v5.models.DirectionsRoute;
+import com.mapbox.services.directions.v4.DirectionsCriteria;
+import com.mapbox.services.directions.v4.MapboxDirections;
+import com.mapbox.services.directions.v4.models.DirectionsResponse;
+import com.mapbox.services.directions.v4.models.DirectionsRoute;
 import com.mapbox.services.directions.v4.models.Waypoint;
 
 import java.util.List;
@@ -82,6 +82,7 @@ public class MapviewActivity extends AppCompatActivity {
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
+                map = mapboxMap;
 
                 // Set map style
                 mapboxMap.setStyleUrl(Style.MAPBOX_STREETS);
