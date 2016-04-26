@@ -1,13 +1,17 @@
 package samo92.mx.appbike;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.Style;
@@ -16,19 +20,58 @@ import com.mapbox.mapboxsdk.layers.CustomLayer;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.services.Constants;
+import com.mapbox.services.commons.ServicesException;
+import com.mapbox.services.commons.geojson.LineString;
+import com.mapbox.services.commons.models.Position;
+import com.mapbox.services.directions.v5.DirectionsCriteria;
+import com.mapbox.services.directions.v5.MapboxDirections;
+import com.mapbox.services.directions.v5.models.DirectionsResponse;
+import com.mapbox.services.directions.v5.models.DirectionsRoute;
+import com.mapbox.services.directions.v4.models.Waypoint;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by samo92 on 13/04/16.
  */
 public class MapviewActivity extends AppCompatActivity {
 
+    private final static String TAG = "MainActivity";
+
+    private DirectionsRoute currentRoute;
+
+    private MapboxMap map;
+
     // Create a mapView
     private MapView mapView;
+
+    //accessToken
+    private String myToken = "pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
+
+        /*/*****Si usamos este codigo no dibuja la ruta*************
+        // Alhambra landmark in Granada, Spain.
+        final Position origin = Position.fromCoordinates(-3.588098, 37.176164);
+
+        // Plaza del Triunfo in Granada, Spain.
+        final Position destination = Position.fromCoordinates(-3.601845, 37.184080);
+        */
+
+        // Alhambra landmark in Granada, Spain.
+        final Waypoint origin = new Waypoint(-3.588098, 37.176164);
+
+        // Plaza del Triunfo in Granada, Spain.
+        final Waypoint destination = new Waypoint(-3.601845, 37.184080);
 
         // Create a mapView
         mapView = (MapView) findViewById(R.id.mapview);
@@ -50,7 +93,8 @@ public class MapviewActivity extends AppCompatActivity {
                         //.target(new LatLng(41.885, -87.679)) // set the camera's center position
 
                         //CU position
-                        .target(new LatLng(19.331576, -99.184483)) // set the camera's center position
+                        //.target(new LatLng(19.331576, -99.184483)) // set the camera's center position
+                        .target(new LatLng(37.1792, -3.5953))
                         .zoom(12)  // set the camera's zoom level
                         .tilt(20)  // set the camera's tilt (tilt==Inclinacion)
                         .build();
@@ -65,6 +109,23 @@ public class MapviewActivity extends AppCompatActivity {
                 IconFactory iconFactory = IconFactory.getInstance(MapviewActivity.this);
                 Drawable iconDrawable = ContextCompat.getDrawable(MapviewActivity.this, R.mipmap.ic_ev_station_black_24dp);
                 Icon icon = iconFactory.fromDrawable(iconDrawable);
+
+
+                // Add origin and destination to the map
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(origin.getLatitude(), origin.getLongitude()))
+                        .title("Origin")
+                        .snippet("Alhambra"));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(destination.getLatitude(), destination.getLongitude()))
+                        .title("Destination")
+                        .snippet("Plaza del Triunfo"));
+
+                try {
+                    getRoute(origin, destination);
+                } catch (ServicesException e) {
+                    e.printStackTrace();
+                }
 
                 //The Office
 
@@ -120,6 +181,60 @@ public class MapviewActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    private void getRoute(Waypoint origin, Waypoint destination) throws ServicesException {
+
+        MapboxDirections client = new MapboxDirections.Builder()
+                .setOrigin(origin)
+                .setDestination(destination)
+                .setProfile(DirectionsCriteria.PROFILE_CYCLING)
+                .setAccessToken(myToken)
+                .build();
+
+        client.enqueueCall(new Callback<DirectionsResponse>() {
+            @Override
+            public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                // You can get the generic HTTP info about the response
+                Log.d(TAG, "Response code: " + response.code());
+                if (response.body() == null) {
+                    Log.e(TAG, "No routes found, make sure you set the right user and access token.");
+                    return;
+                }
+
+                // Print some info about the route
+                currentRoute = response.body().getRoutes().get(0);
+                Log.d(TAG, "Distance: " + currentRoute.getDistance());
+                Toast.makeText(MapviewActivity.this, "Route is " + currentRoute.getDistance() + " meters long.", Toast.LENGTH_SHORT).show();
+
+                // Draw the route on the map
+                drawRoute(currentRoute);
+            }
+
+            @Override
+            public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                Log.e(TAG, "Error: " + t.getMessage());
+                Toast.makeText(MapviewActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void drawRoute(DirectionsRoute route) {
+        // Convert LineString coordinates into LatLng[]
+        LineString lineString = LineString.fromPolyline(route.getGeometry(), Constants.OSRM_PRECISION_V4);
+        List<Position> coordinates = lineString.getCoordinates();
+        LatLng[] points = new LatLng[coordinates.size()];
+        for (int i = 0; i < coordinates.size(); i++) {
+            points[i] = new LatLng(
+                    coordinates.get(i).getLatitude(),
+                    coordinates.get(i).getLongitude());
+        }
+
+        // Draw Points on MapView
+        map.addPolyline(new PolylineOptions()
+                .add(points)
+                .color(Color.parseColor("#009688"))
+                .width(5));
     }
 
     @Override
