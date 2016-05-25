@@ -9,7 +9,7 @@
         android:id="@+id/mapview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        mapbox:style_url="@string/style_emerald"
+        mapbox:style_url="mapbox://styles/mapbox/streets-v9"
         mapbox:access_token="@string/accessToken"/>
 
 </RelativeLayout>

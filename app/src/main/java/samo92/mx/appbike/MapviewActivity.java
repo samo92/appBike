@@ -51,7 +51,7 @@ public class MapviewActivity extends AppCompatActivity {
     private MapView mapView;
 
     //accessToken
-    private String myToken = "pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ";
+    //private String myToken = "pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ";
 
 
     @Override
@@ -59,19 +59,19 @@ public class MapviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
 
-        /*/*****Si usamos este codigo no dibuja la ruta*************
         // Alhambra landmark in Granada, Spain.
-        final Position origin = Position.fromCoordinates(-3.588098, 37.176164);
-
-        // Plaza del Triunfo in Granada, Spain.
-        final Position destination = Position.fromCoordinates(-3.601845, 37.184080);
-        */
-
-        // Alhambra landmark in Granada, Spain.
+        //Primera posicion
+        //final Position origin = Position.fromCoordinates(-3.588098, 37.176164);
         final Waypoint origin = new Waypoint(-3.588098, 37.176164);
+        //final Waypoint origin = new Waypoint(19.430349, -99.210860); //Segunda mano
+
 
         // Plaza del Triunfo in Granada, Spain.
+        //Segunda posicion
+        //final Position destination = Position.fromCoordinates(-3.601845, 37.184080);
         final Waypoint destination = new Waypoint(-3.601845, 37.184080);
+        //final Waypoint destination = new Waypoint(19.433639, -99.190146);  //ALgun lugar
+
 
         // Create a mapView
         mapView = (MapView) findViewById(R.id.mapview);
@@ -95,7 +95,7 @@ public class MapviewActivity extends AppCompatActivity {
 
                         //CU position
                         //.target(new LatLng(19.331576, -99.184483)) // set the camera's center position
-                        .target(new LatLng(37.1792, -3.5953))
+                        .target(new LatLng(-3.601845, 37.184080)) //Posicion de la camara
                         .zoom(12)  // set the camera's zoom level
                         .tilt(20)  // set the camera's tilt (tilt==Inclinacion)
                         .build();
@@ -108,19 +108,24 @@ public class MapviewActivity extends AppCompatActivity {
                 /** Use IconFactory, Drawable, and Icon to load our marker icon
                  * and assign it to a marker */
                 IconFactory iconFactory = IconFactory.getInstance(MapviewActivity.this);
-                Drawable iconDrawable = ContextCompat.getDrawable(MapviewActivity.this, R.mipmap.ic_ev_station_black_24dp);
-                Icon icon = iconFactory.fromDrawable(iconDrawable);
+                Drawable iconDrawable = ContextCompat.getDrawable(MapviewActivity.this, R.mipmap.este);
+                Icon icon_centro = iconFactory.fromDrawable(iconDrawable);
+
+                Drawable iconParking = ContextCompat.getDrawable(MapviewActivity.this, R.mipmap.este2);
+                Icon icon_parking = iconFactory.fromDrawable(iconParking);
 
 
                 // Add origin and destination to the map
                 mapboxMap.addMarker(new MarkerOptions()
                         .position(new LatLng(origin.getLatitude(), origin.getLongitude()))
                         .title("Origin")
-                        .snippet("Alhambra"));
+                        .snippet("Alhambra")
+                        .icon(icon_centro));
                 mapboxMap.addMarker(new MarkerOptions()
                         .position(new LatLng(destination.getLatitude(), destination.getLongitude()))
                         .title("Destination")
-                        .snippet("Plaza del Triunfo"));
+                        .snippet("Plaza del Triunfo")
+                        .icon(icon_parking));
 
                 try {
                     getRoute(origin, destination);
@@ -134,7 +139,7 @@ public class MapviewActivity extends AppCompatActivity {
                         .position(new LatLng(19.326350, -99.181819, 1054.452))    //Office
                         .title("Here I am")
                         .snippet("Welcome to my office.")
-                        .icon(icon));
+                        .icon(icon_centro));
                 //.setIcon(new Icon(this, Icon.Size.Large, "danger", "3887be"));
 
                 //Parking
@@ -190,7 +195,7 @@ public class MapviewActivity extends AppCompatActivity {
                 .setOrigin(origin)
                 .setDestination(destination)
                 .setProfile(DirectionsCriteria.PROFILE_CYCLING)
-                .setAccessToken(myToken)
+                .setAccessToken("pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ")
                 .build();
 
         client.enqueueCall(new Callback<DirectionsResponse>() {
