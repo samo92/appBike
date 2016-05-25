@@ -9,7 +9,24 @@
         android:id="@+id/mapview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        mapbox:style_url="mapbox://styles/mapbox/streets-v9"
+        mapbox:style_url="mapbox://styles/mapbox/light-v9"
         mapbox:access_token="@string/accessToken"/>
+
+    <com.mapbox.services.android.geocoder.ui.GeocoderAutoCompleteView
+        android:id="@+id/query"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="14dp"
+        android:padding="10dp"
+        android:hint="Search Location"
+        android:textColor="@android:color/black"
+        android:background="@android:color/white"
+        android:elevation="12dp"/>
 
 </RelativeLayout>

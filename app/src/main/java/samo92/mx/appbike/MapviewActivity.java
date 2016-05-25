@@ -14,21 +14,22 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.layers.CustomLayer;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.services.Constants;
+import com.mapbox.services.android.geocoder.ui.GeocoderAutoCompleteView;
 import com.mapbox.services.commons.ServicesException;
 import com.mapbox.services.commons.geojson.LineString;
 import com.mapbox.services.commons.models.Position;
-import com.mapbox.services.directions.v4.DirectionsCriteria;
-import com.mapbox.services.directions.v4.MapboxDirections;
-import com.mapbox.services.directions.v4.models.DirectionsResponse;
-import com.mapbox.services.directions.v4.models.DirectionsRoute;
+import com.mapbox.services.directions.v5.DirectionsCriteria;
+import com.mapbox.services.directions.v5.MapboxDirections;
+import com.mapbox.services.directions.v5.models.DirectionsResponse;
+import com.mapbox.services.directions.v5.models.DirectionsRoute;
 import com.mapbox.services.directions.v4.models.Waypoint;
+import com.mapbox.services.geocoding.v5.GeocodingCriteria;
+import com.mapbox.services.geocoding.v5.models.GeocodingFeature;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ import retrofit2.Response;
  */
 public class MapviewActivity extends AppCompatActivity {
 
-    private final static String TAG = "MainActivity";
+    private final static String TAG = "MapViewActivity";
 
     private DirectionsRoute currentRoute;
 
@@ -49,6 +50,9 @@ public class MapviewActivity extends AppCompatActivity {
 
     // Create a mapView
     private MapView mapView;
+
+    private Position userLocation;
+    private Position userDestination;
 
     //accessToken
     //private String myToken = "pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ";
@@ -62,15 +66,15 @@ public class MapviewActivity extends AppCompatActivity {
         // Alhambra landmark in Granada, Spain.
         //Primera posicion
         //final Position origin = Position.fromCoordinates(-3.588098, 37.176164);
-        final Waypoint origin = new Waypoint(-3.588098, 37.176164);
-        //final Waypoint origin = new Waypoint(19.430349, -99.210860); //Segunda mano
+        //final Waypoint origin = new Waypoint(-3.588098, 37.176164);
+        final Waypoint origin = new Waypoint(19.430349, -99.210860); //Segunda mano
 
 
         // Plaza del Triunfo in Granada, Spain.
         //Segunda posicion
         //final Position destination = Position.fromCoordinates(-3.601845, 37.184080);
-        final Waypoint destination = new Waypoint(-3.601845, 37.184080);
-        //final Waypoint destination = new Waypoint(19.433639, -99.190146);  //ALgun lugar
+        //final Waypoint destination = new Waypoint(-3.601845, 37.184080);
+        final Waypoint destination = new Waypoint(19.433639, -99.190146);  //Metro Polanco
 
 
         // Create a mapView
@@ -84,8 +88,10 @@ public class MapviewActivity extends AppCompatActivity {
             public void onMapReady(MapboxMap mapboxMap) {
                 map = mapboxMap;
 
+                mapboxMap.setMyLocationEnabled(true);
+
                 // Set map style
-                mapboxMap.setStyleUrl(Style.MAPBOX_STREETS);
+                //mapboxMap.setStyleUrl(Style.MAPBOX_STREETS);
 
                 // Set the camera's starting position
                 CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -94,8 +100,9 @@ public class MapviewActivity extends AppCompatActivity {
                         //.target(new LatLng(41.885, -87.679)) // set the camera's center position
 
                         //CU position
+                        //Example position 37.1792,-3.5953
                         //.target(new LatLng(19.331576, -99.184483)) // set the camera's center position
-                        .target(new LatLng(-3.601845, 37.184080)) //Posicion de la camara
+                        .target(new LatLng(19.331576, -99.184483)) //Posicion de la camara
                         .zoom(12)  // set the camera's zoom level
                         .tilt(20)  // set the camera's tilt (tilt==Inclinacion)
                         .build();
@@ -127,11 +134,11 @@ public class MapviewActivity extends AppCompatActivity {
                         .snippet("Plaza del Triunfo")
                         .icon(icon_parking));
 
-                try {
+                /*try {
                     getRoute(origin, destination);
                 } catch (ServicesException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 //The Office
 
@@ -187,9 +194,44 @@ public class MapviewActivity extends AppCompatActivity {
             }
 
         });
+
+        // Set up autocomplete widget
+        GeocoderAutoCompleteView autocomplete = (GeocoderAutoCompleteView) findViewById(R.id.query);
+        autocomplete.setAccessToken("pk.eyJ1Ijoic2FtbzkyIiwiYSI6ImNpbXprdzVyejA0eGF1bm00NGhpem15ajMifQ.R4M1a2dTm1szXs68C9vlzQ");
+        autocomplete.setType(GeocodingCriteria.TYPE_POI);
+        autocomplete.setOnFeatureListener(new GeocoderAutoCompleteView.OnFeatureListener() {
+            @Override
+            public void OnFeatureClick(GeocodingFeature feature) {
+
+                if(map.getMyLocation() != null) {
+                    // Set the origin as user location only if we can get their location
+                    userLocation = Position.fromCoordinates(map.getMyLocation().getLongitude(), map.getMyLocation().getLatitude());
+                }else{
+                    return;
+                }
+
+                userDestination = feature.asPosition();
+
+                // Add origin and destination to the map
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(userLocation.getLatitude(), userLocation.getLongitude())));
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(userDestination.getLatitude(), userDestination.getLongitude())));
+
+                // Get route from API
+                try {
+                    getRoute(userLocation, userDestination);
+                } catch (ServicesException e) {
+                    e.printStackTrace();
+                }
+
+                /*Position position = feature.asPosition();
+                updateMap(position.getLatitude(), position.getLongitude());*/
+            }
+        });
     }
 
-    private void getRoute(Waypoint origin, Waypoint destination) throws ServicesException {
+    private void getRoute(Position origin, Position destination) throws ServicesException {
 
         MapboxDirections client = new MapboxDirections.Builder()
                 .setOrigin(origin)
@@ -227,7 +269,7 @@ public class MapviewActivity extends AppCompatActivity {
 
     private void drawRoute(DirectionsRoute route) {
         // Convert LineString coordinates into LatLng[]
-        LineString lineString = LineString.fromPolyline(route.getGeometry(), Constants.OSRM_PRECISION_V4);
+        LineString lineString = LineString.fromPolyline(route.getGeometry(), Constants.OSRM_PRECISION_V5);
         List<Position> coordinates = lineString.getCoordinates();
         LatLng[] points = new LatLng[coordinates.size()];
         for (int i = 0; i < coordinates.size(); i++) {
@@ -242,6 +284,32 @@ public class MapviewActivity extends AppCompatActivity {
                 .color(Color.parseColor("#009688"))
                 .width(5));
     }
+
+    private void updateMap(double latitude, double longitude) {
+        // Build marker
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title("Geocoder result"));
+
+        // Animate camera to geocoder result location
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(latitude, longitude))
+                .zoom(15)
+                .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 5000, null);
+    }
+
+    /*private void setupMapView() {
+
+        MapView.setUserLocationEnabled(true);
+        MapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
+        MapView.setUserLocationRequiredZoom(14);
+        MapView.goToUserLocation(true);
+        UserLocationOverlay myLocationOverlay = new UserLocationOverlay(locationProvider, myMapView);
+        myLocationOverlay.enableMyLocation();
+        myLocationOverlay.setDrawAccuracyEnabled(true);
+        MapView.getOverlays().add(myLocationOverlay);
+    }*/
 
     @Override
     public void onResume() {

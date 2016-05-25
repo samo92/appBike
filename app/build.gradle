@@ -35,4 +35,8 @@ dependencies {
     compile ('com.mapbox.mapboxsdk:mapbox-android-services:1.0.0@aar'){
         transitive=true
     }
+
+    //Otro de rutas "https://github.com/MKergall/osmbonuspack/wiki/HowToInclude"
+    //compile 'com.github.MKergall:osmbonuspack:v5.7'
+
 }
