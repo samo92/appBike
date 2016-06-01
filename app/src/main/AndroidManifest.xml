@@ -18,6 +18,10 @@
 
         <service android:name="com.mapbox.mapboxsdk.telemetry.TelemetryService" />
 
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -62,6 +64,10 @@ public class MapviewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
+
+        FacebookSdk.sdkInitialize(getApplicationContext()); //cosas login de facebook
+        AppEventsLogger.activateApp(this);                  //cosas login facebook
+        
 
         // Alhambra landmark in Granada, Spain.
         //Primera posicion
@@ -203,10 +209,10 @@ public class MapviewActivity extends AppCompatActivity {
             @Override
             public void OnFeatureClick(GeocodingFeature feature) {
 
-                if(map.getMyLocation() != null) {
+                if (map.getMyLocation() != null) {
                     // Set the origin as user location only if we can get their location
                     userLocation = Position.fromCoordinates(map.getMyLocation().getLongitude(), map.getMyLocation().getLatitude());
-                }else{
+                } else {
                     return;
                 }
 
@@ -281,7 +287,7 @@ public class MapviewActivity extends AppCompatActivity {
         // Draw Points on MapView
         map.addPolyline(new PolylineOptions()
                 .add(points)
-                .color(Color.parseColor("#009688"))
+                .color(Color.parseColor("#DDDC00"))
                 .width(5));
     }
 
